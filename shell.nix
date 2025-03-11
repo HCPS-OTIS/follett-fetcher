@@ -5,6 +5,6 @@
 pkgs.mkShell {
   packages = with pkgs; [
     python313Packages.requests
-    python313Packages.mysql-connector
+    python313Packages.pymongo
   ];
 }
