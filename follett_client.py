@@ -55,10 +55,22 @@ class DestinyClient(object):
         """
         return self._make_api_call('fines')
 
-    def get_items(self):
+    def get_resourcetypes(self):
+        """
+        Get resource types from Destiny
+        """
+        return self._make_api_call('materials/resourcetypes')
+
+    def get_items(self, resourcetype=None, resource=None):
         """
         Get the first page of items from Destiny
         """
+        if resourcetype and resource:
+            raise(ValueError('Only specify one of resource or resourcetype.'))
+        elif resourcetype:
+            return self._make_api_call(f'materials/resourcetypes/{resourcetype}/items')
+        elif resource:
+            return self._make_api_call(f'materials/resources/{resource}/items')
         return self._make_api_call('materials/resources/items')
 
     def get_next_page(self, previous_page):
