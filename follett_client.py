@@ -61,6 +61,12 @@ class DestinyClient(object):
         """
         return self._make_api_call('materials/resourcetypes')
 
+    def get_sites(self):
+        """
+        Get sites from Destiny
+        """
+        return self._make_api_call('sites')
+
     def get_items(self, resourcetype=None, resource=None):
         """
         Get the first page of items from Destiny

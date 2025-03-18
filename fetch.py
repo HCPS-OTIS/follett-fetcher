@@ -37,7 +37,16 @@ def get_items_recurse(root, destiny, collection):
             get_items_recurse(i, destiny, collection)
 
 if __name__ == "__main__":
-    # clear collection
+    # clear sites collection
+    collection = mongo.destiny.sites
+    collection.drop()
+
+    # get sites
+    sites = destiny.get_sites()
+    sites['value'][0]
+    collection.insert_many(sites['value'])
+
+    # clear items collection
     collection = mongo.destiny.items
     collection.drop()
 
