@@ -1,0 +1,66 @@
+// grafana query:
+[
+    {
+        "$match": {
+            "$and": [
+                {
+                    "status": {
+                        "$in": [
+                            "Available",
+                            "Out for Repairs",
+                            "Checked Out"
+                        ]
+                    }
+                },
+                {
+                    "$or": [
+                        {
+                            "resource.name": {
+                                "$in": [
+                                    "Dell Inc. Latitude 3120"
+                                ]
+                            }
+                        },
+                        {
+                            "resource.name": {
+                                "$regex": ".*chromebook.*",
+                                "$options": "i"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "$group": {
+            "_id": "$site.guid",
+            "count": {
+                "$sum": 1
+            }
+        }
+    },
+    {
+        "$lookup": {
+            "from": "sites",
+            "localField": "_id",
+            "foreignField": "guid",
+            "as": "school"
+        }
+    },
+    {
+        "$unwind": "$school"
+    },
+    {
+        "$project": {
+            "_id": 0,
+            "count": 1,
+            "name": "$school.name"
+        }
+    },
+    {
+        "$sort": {
+            "name": 1
+        }
+    }
+]
