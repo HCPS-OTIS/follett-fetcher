@@ -37,6 +37,8 @@ def get_items_recurse(root, destiny, collection):
             get_items_recurse(i, destiny, collection)
 
 if __name__ == "__main__":
+    mongo.destiny.info.update_one({'_id': 'in_progress'}, {'$set': {'value': True}}, upsert=True)
+
     # clear sites collection
     collection = mongo.destiny.sites
     collection.drop()
@@ -56,3 +58,5 @@ if __name__ == "__main__":
     root = types['children'][4]
 
     get_items_recurse(root=root, destiny=destiny, collection=collection)
+
+    mongo.destiny.info.update_one({'_id': 'in_progress'}, {'$set': {'value': False}})
