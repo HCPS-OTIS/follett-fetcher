@@ -55,6 +55,12 @@ class DestinyClient(object):
         """
         return self._make_api_call('fines')
 
+    def get_patron(self, patron):
+        """
+        Get specified patron from Destiny
+        """
+        return self._make_api_call(f'patrons/{patron}')
+
     def get_resourcetypes(self):
         """
         Get resource types from Destiny
