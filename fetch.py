@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import csv, requests
 from datetime import datetime
-import config
-# import json
-from follett_client import DestinyClient
 from pymongo import MongoClient
+
+import config
+from follett_client import DestinyClient
 
 destiny = DestinyClient(config)
 mongo = MongoClient()
@@ -100,5 +101,56 @@ if __name__ == "__main__":
     root = types['children'][4]
 
     get_items_recurse(root=root, destiny=destiny, collection=collection_items)
+
+    # get enrollment numbers
+    enrollment_request = requests.get(config.ENROLLMENT_URL)
+    collection_enrollment = mongo.destiny.enrollment
+    collection_enrollment.drop()
+
+    enrollment_reader = csv.DictReader(enrollment_request.text.replace(' ','').split('\n'))
+    for school in enrollment_reader:
+        abbr = school.pop('abbreviation')
+        for grade, count in school.items():
+            collection_enrollment.insert_one({
+                'school': abbr,
+                'grade': int(grade) if grade.isnumeric() else 0,
+                'count': int(count)
+            })
+
+    # get final counts
+    collection_final = mongo.destiny.final
+    collection_final.drop()
+    for site in config.ABBR_MAP:
+        inserting = {
+            'school': site['name'],
+            'abbreviation': site['abbreviation'],
+            'location': site['location'],
+            'items': collection_items.count_documents(dict(
+                {
+                    'status': {
+                        '$in': [
+                            'Available',
+                            'Checked Out'
+                        ]
+                    }
+                },
+                **site['items']
+            )),
+            'enrollment': list(collection_enrollment.aggregate([
+                {
+                    '$match': site['enrollment']
+                },
+                {
+                    '$group': {
+                        '_id': None,
+                        'count': {
+                            '$sum': '$count'
+                        }
+                    }
+                }
+            ]))[0]['count']
+        }
+
+        collection_final.insert_one(inserting)
 
     mongo.destiny.info.update_one({'_id': 'in_progress'}, {'$set': {'value': False}})
