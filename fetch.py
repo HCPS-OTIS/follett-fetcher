@@ -63,9 +63,6 @@ if __name__ == "__main__":
                     'middleName': fines_item['patron']['middleName'],
                     'lastName': fines_item['patron']['lastName'],
                 },
-                'item': {
-                    'name': fine['bib']['title']
-                },
                 'fine': {
                     'description': fine['description'],
                     'amount': fine['paymentSummary']['amountDue'],
@@ -73,6 +70,14 @@ if __name__ == "__main__":
                     'type': fine['type']
                 }
             }
+
+            # for fines not attached to an item
+            try:
+                insert['item'] = {
+                    'name': fine['bib']['title']
+                }
+            except:
+                pass
 
             # add grade level to fine
             if 'gradeLevel' in patron:
