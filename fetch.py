@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # get resource types
     types = destiny.get_resourcetypes()
     # get top level technology type
-    root = types['children'][4]
+    root = [t for t in types['children'] if t['name'] == 'Technology'][0]
 
     get_items_recurse(root=root, destiny=destiny, collection=collection_items)
 
